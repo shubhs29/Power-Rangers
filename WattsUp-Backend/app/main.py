@@ -9,7 +9,8 @@ from apply_label import label_router
 from models import Base
 from db import engine
 from middleware import middleware_router 
-# from llm_model.llm_routes import LLMrouter
+from llm_routes import LLMrouter
+from energy_insights import insightRouter
 import os
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -45,5 +46,5 @@ Base.metadata.create_all(bind=engine)
 app.include_router(dashboard)
 # app.include_router(kpi)
 app.include_router(middleware_router)
-
-# app.include_router(LLMrouter)
+app.include_router(LLMrouter)
+app.include_router(insightRouter)

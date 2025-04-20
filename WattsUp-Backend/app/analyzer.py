@@ -1,21 +1,30 @@
-import pandas as pd
+from sqlalchemy.orm import Session
+from models import EnergyUsage
+from datetime import datetime, timedelta
 
-def analyze_energy_usage(file_path):
-    df = pd.read_csv(file_path)
-    df['timestamp'] = pd.to_datetime(df['timestamp'])
+def analyze_energy_usage_from_db(db: Session, days: int = 1):
+    end_date = datetime.now()
+    start_date = end_date - timedelta(days=days)
+
+    records = db.query(EnergyUsage).filter(EnergyUsage.timestamp >= start_date).all()
 
     usage_summary = {}
+    for record in records:
+        device = record.appliance
+        if device not in usage_summary:
+            usage_summary[device] = {
+                "total_usage": 0,
+                "active_hours": set()
+            }
 
-    for device in df['device'].unique():
-        device_data = df[df['device'] == device]
-        total_usage = int(device_data['power_usage'].sum())
-        active_hours = [int(hour) for hour in device_data['timestamp'].dt.hour.unique().tolist()]
+        usage_summary[device]["total_usage"] += record.power_usage_kWh
+        usage_summary[device]["active_hours"].add(record.timestamp.hour)
 
-        usage_summary[device] = {
-            "total_usage": total_usage,
-            "active_hours": active_hours,
-        }
+    # Convert sets to lists
+    for device in usage_summary:
+        usage_summary[device]["active_hours"] = list(usage_summary[device]["active_hours"])
 
+    # Identify wastage
     wastage = []
     for device, data in usage_summary.items():
         if device == "AC" and any(hour > 1 for hour in data['active_hours']):

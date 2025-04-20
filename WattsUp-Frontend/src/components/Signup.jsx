@@ -1,12 +1,13 @@
-import React, { useState } from "react";
-import { Eye, EyeOff, Zap, Mail, Lock, User, Phone, Check } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Eye, EyeOff, Zap, Mail, Lock, User, Phone, Check, Locate } from "lucide-react";
 
-function SignUp() {
+function SignUp({ location }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [locationDets, setLocationDets] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -22,6 +23,13 @@ function SignUp() {
       window.location.href = "/dashboard";
     }, 1500);
   };
+
+  useEffect(() => {
+    if (location?.latitude && location?.longitude) {
+      setLocationDets(`lat: ${location.latitude}, lng: ${location.longitude}`);
+    }
+  }
+    , [location]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-emerald-100 via-teal-50 to-blue-100">
@@ -42,14 +50,14 @@ function SignUp() {
             Watt'sUp
           </h1>
         </div>
-        
+
         <h2 className="text-center text-xl font-semibold text-gray-700 mb-6">
           Create your account
         </h2>
         <p className="text-center text-gray-500 mb-8">
           Join Watt'sUp to start monitoring your energy consumption
         </p>
-        
+
         <form onSubmit={handleSignUp} className="space-y-5">
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -64,7 +72,7 @@ function SignUp() {
               required
             />
           </div>
-          
+
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Mail size={18} className="text-gray-400" />
@@ -92,7 +100,7 @@ function SignUp() {
               required
             />
           </div>
-          
+
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Lock size={18} className="text-gray-400" />
@@ -117,7 +125,21 @@ function SignUp() {
               )}
             </button>
           </div>
-          
+
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Locate size={18} className="text-gray-400" />
+            </div>
+            <input
+              type="text"
+              value={locationDets}
+              onChange={(e) => setLocationDets(e.target.value)}
+              placeholder="Location"
+              className="w-full pl-10 pr-3 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-all"
+              required
+            />
+          </div>
+
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
               <Lock size={18} className="text-gray-400" />
@@ -142,7 +164,7 @@ function SignUp() {
               )}
             </button>
           </div>
-          
+
           {/* <div className="flex items-center">
             <input
               id="agree-terms"
@@ -157,15 +179,14 @@ function SignUp() {
               I agree to the <a href="#" className="text-emerald-600 hover:text-emerald-500">Terms of Service</a> and <a href="#" className="text-emerald-600 hover:text-emerald-500">Privacy Policy</a>
             </label>
           </div> */}
-          
+
           <button
             type="submit"
             disabled={isLoading || !agreeTerms}
-            className={`w-full flex items-center justify-center py-3 px-4 rounded-lg text-white font-medium transition-all duration-300 ${
-              isLoading || !agreeTerms
-                ? "bg-emerald-400 cursor-not-allowed" 
+            className={`w-full flex items-center justify-center py-3 px-4 rounded-lg text-white font-medium transition-all duration-300 ${isLoading || !agreeTerms
+                ? "bg-emerald-400 cursor-not-allowed"
                 : "bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 shadow-md hover:shadow-lg"
-            }`}
+              }`}
           >
             {isLoading ? (
               <>
